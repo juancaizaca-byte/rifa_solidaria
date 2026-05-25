@@ -1,19 +1,18 @@
 import streamlit as st
-import psycopg2
+import mysql.connector
 from datetime import datetime
 from fpdf import FPDF
 import io
 
-# Función para conectar con la base de datos Supabase (Postgres)
+# Función para conectar con la base de datos
 
 def conectar():
-    return psycopg2.connect(
-        host="db.dzenrnhwqjvwlbpbukxc.supabase.co",
-        port="5432",
-        user="postgres",
-        password="ElFuegodemi",
-        database="postgres",
-        sslmode="require"
+    return mysql.connector.connect(
+        host="mysql.railway.internal",
+        port=3306,
+        user="root",
+        password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
+        database="railway"
     )
 
 # Título principal de la app
