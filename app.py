@@ -179,7 +179,7 @@ if st.session_state.mostrar_confirmacion:
             pdf.set_text_color(0, 102, 204)
             for numero_boleto in st.session_state.seleccionados:
                 pdf.set_x(x_centro)
-                pdf.cell(ancho_tabla, 7, numero_boleto, 1, 1, 'C')
+                pdf.cell(ancho_tabla, 7, str(numero_boleto), 1, 1, 'C')
 
             pdf.set_text_color(0, 0, 0)
             pdf.ln(10)
