@@ -67,7 +67,7 @@ st.markdown("""
 
 # Renderizar los checkboxes de boletos
 for i, numero in enumerate(boletos_pagina):
-    numero_sin_ceros = numero
+    numero_sin_ceros = str(numero)              # convertir a string
     col = cols[i % 10]
     checked = col.checkbox(numero_sin_ceros,
                            key=f"{pagina}-{numero}",
