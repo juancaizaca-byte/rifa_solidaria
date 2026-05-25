@@ -1,4 +1,4 @@
 streamlit
-psycopg2-binary
+mysql-connector-python
 fpdf2
 Pillow
