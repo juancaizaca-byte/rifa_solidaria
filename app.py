@@ -8,7 +8,7 @@ import io
 
 def conectar():
     return psycopg2.connect(
-        "postgresql://postgres:Jasdevito27.@db.dzenrnhwqjvwlbpbukxc.supabase.co:5432/postgres"
+        "postgresql://postgres:Jasdevito27%2E@db.dzenrnhwqjvwlbpbukxc.supabase.co:5432/postgres?sslmode=require"
     )
 
 # Título principal de la app
