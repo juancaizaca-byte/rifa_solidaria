@@ -8,8 +8,8 @@ import io
 
 def conectar():
     return mysql.connector.connect(
-        host="mysql://root:tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ@zephyr.proxy.rlwy.net:54106/railway",
-        port=3306,
+        host="zephyr.proxy.rlwy.net",   # solo el host
+        port=54106,
         user="root",
         password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
         database="railway"
