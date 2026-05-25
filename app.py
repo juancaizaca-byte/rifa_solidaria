@@ -11,7 +11,7 @@ def conectar():
         host="db.dzenrnhwqjvwlbpbukxc.supabase.co",
         port="5432",
         user="postgres",
-        password="Jasdevito27.",
+        password="ElFuegodemi",
         database="postgres",
         sslmode="require"
     )
