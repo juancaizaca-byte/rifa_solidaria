@@ -180,8 +180,10 @@ params = st.query_params
 boleto_id = params.get("boleto", [None])[0]
 
 if boleto_id:
+    # 👇 abrir nueva conexión aquí
     conexion = conectar()
     cursor = conexion.cursor(dictionary=True)
+
     cursor.execute("SELECT * FROM boletos WHERE id = %s", (boleto_id,))
     resultado = cursor.fetchone()
 
@@ -218,6 +220,8 @@ if boleto_id:
 
     else:
         st.error("❌ Boleto no encontrado")
+
+    # 👇 cerrar conexión aquí
     cursor.close()
     conexion.close()
 else:
