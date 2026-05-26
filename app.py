@@ -12,7 +12,9 @@ def conectar():
         port=54106,
         user="root",
         password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
-        database="railway"
+        database="railway",
+        autocommit=True,          # 👈 fuerza commit automático
+        connection_timeout=60     # 👈 evita que se corte rápido
     )
 
 # Función para generar PDF con QR y botón de descarga
@@ -212,10 +214,10 @@ if st.session_state.mostrar_confirmacion:
     chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
     st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
 
-if st.button("✅ Confirmar venta"):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if st.button("✅ Confirmar venta"):
+        conexion = conectar()
+        cursor = conexion.cursor()
+        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     try:
         # Validar duplicados
