@@ -272,14 +272,15 @@ if boleto_id:
     if resultado:
         st.header("🎟️ Validación de Boleto")
         st.success("✅ Boleto encontrado")
+
         st.write(f"**Número de boleto:** {resultado['numero']}")
         st.write(f"**Comprador:** {resultado['comprador']}")
         st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
         st.write(f"**Estado:** {resultado['estado']}")
 
-    # Mostrar todos los boletos de ese comprador en una sola línea
+        # Mostrar todos los boletos de ese comprador en una sola línea
         cursor.execute("SELECT numero FROM boletos WHERE comprador = %s", (resultado['comprador'],))
-        boletos_comprador = [row[0] for row in cursor.fetchall()]
+        boletos_comprador = [row['numero'] for row in cursor.fetchall()]
         if boletos_comprador:
             boletos_str = ", ".join(str(b) for b in boletos_comprador)
             st.write(f"**Boletos comprados:** {boletos_str}")
