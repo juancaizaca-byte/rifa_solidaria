@@ -31,7 +31,7 @@ def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
         pass
 
     # Generar QR y ponerlo arriba a la derecha
-    url_qr = f"https://tuapp.streamlit.app/?boleto={lista_boletos[0]}"
+    url_qr = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?boleto={lista_boletos[0]}"
     qr_img = qrcode.make(url_qr)
     qr_path = "qr_compra.png"
     qr_img.save(qr_path)
