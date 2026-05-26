@@ -16,45 +16,115 @@ def conectar():
     )
 
 # Función para generar PDF con QR y botón de descarga
+from fpdf.enums import XPos, YPos
+
 def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
 
-    # Encabezado
-    pdf.cell(200, 10, txt="Comprobante de compra", ln=True, align="C")
-    pdf.cell(200, 10, txt=f"Comprador: {comprador}", ln=True)
-    pdf.cell(200, 10, txt=f"Fecha: {fecha_compra}", ln=True)
+    # Logo superior
+    try:
+        pdf.image("logo.png", x=10, y=8, w=30)
+    except:
+        pass
 
-    pdf.ln(10)
-
-    # Listado de boletos comprados
-    pdf.set_font("Arial", size=10)
-    pdf.cell(200, 10, txt="Boletos comprados:", ln=True)
-    for b in lista_boletos:
-        pdf.cell(200, 8, txt=f"- Boleto #{b}", ln=True)
-
-    # Generar QR con la URL que apunta a la página unificada
+    # Generar QR y ponerlo arriba a la derecha
     url_qr = f"https://tuapp.streamlit.app/?boleto={lista_boletos[0]}"
     qr_img = qrcode.make(url_qr)
     qr_path = "qr_compra.png"
     qr_img.save(qr_path)
+    pdf.image(qr_path, x=150, y=20, w=40, h=40)
 
-    # Insertar QR en el PDF
-    pdf.image(qr_path, x=150, y=50, w=40, h=40)
+    # Título centrado
+    pdf.set_font("Helvetica", 'B', 18)
+    pdf.set_text_color(0, 102, 204)
+    pdf.cell(200, 10, text="Tu Aporte Vale Oro - Comprobante",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
 
-    # Exportar PDF a memoria (más limpio que guardarlo en disco)
+    pdf.ln(20)
+
+    # Datos del comprador
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.cell(40, 8, text="Comprador:")
+    pdf.set_font("Helvetica", '', 12)
+    pdf.cell(100, 8, text=comprador,
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.cell(40, 8, text="Fecha:")
+    pdf.set_font("Helvetica", '', 12)
+    pdf.cell(100, 8, text=fecha_compra,
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    pdf.ln(10)
+
+    # --- Tabla de boletos centrada y ajustada ---
+    pdf.set_font("Helvetica", 'B', 11)
+    pdf.set_fill_color(200, 230, 255)
+    ancho_tabla = 50
+    x_centro = (210 - ancho_tabla) / 2
+    pdf.set_x(x_centro)
+    pdf.cell(ancho_tabla, 6, text="Boletos", border=1,
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C", fill=True)
+
+    pdf.set_font("Helvetica", '', 10)
+    pdf.set_text_color(0, 102, 204)
+    for numero_boleto in lista_boletos:
+        pdf.set_x(x_centro)
+        pdf.cell(ancho_tabla, 7, text=str(numero_boleto), border=1,
+                 new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
+
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(10)
+
+    # --- Tabla de premios ---
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.set_fill_color(200, 200, 200)
+    ancho_premios = 160
+    x_centro = (210 - ancho_premios) / 2
+    pdf.set_x(x_centro)
+    pdf.cell(ancho_premios, 7, text="Premios en juego", border=1,
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C", fill=True)
+
+    pdf.set_font("Helvetica", '', 11)
+    premios = [
+        "Set de vajilla para 4 personas",
+        "Cafetera eléctrica",
+        "Juego de sábanas",
+        "Dos premios sorpresa",
+        "Clase demostrativa de guitarra"
+    ]
+    for premio in premios:
+        pdf.set_x(x_centro)
+        pdf.cell(ancho_premios, 8, text=premio, border=1,
+                 new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
+
+    # --- Pie de página ---
+    pdf.set_font("Helvetica", 'I', 9)
+    pdf.set_text_color(0, 0, 0)
+    try:
+        pdf.image("logo1.png", x=80, y=pdf.get_y(), w=50)
+    except:
+        pass
+    pdf.ln(40)
+    pdf.cell(200, 6, text="Fecha del Sorteo: Sábado 27/06/2026",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
+    pdf.cell(200, 6, text="El sorteo se realizará de manera virtual, el enlace será compartido vía redes sociales",
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="C")
+
+    # Exportar PDF a memoria
     pdf_output = io.BytesIO()
     pdf.output(pdf_output)
     pdf_output.seek(0)
 
-    # Botón de descarga
     st.download_button(
         label="⬇️ Descargar comprobante PDF",
         data=pdf_output,
         file_name=f"compra_{comprador}.pdf",
         mime="application/pdf"
     )
+
 
     # Limpiar estados
     st.session_state.seleccionados = []
