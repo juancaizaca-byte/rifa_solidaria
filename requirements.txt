@@ -2,3 +2,4 @@ streamlit
 mysql-connector-python
 fpdf2
 Pillow
+qrcode[pil]
