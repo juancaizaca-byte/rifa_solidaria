@@ -251,34 +251,6 @@ if st.session_state.mostrar_confirmacion:
             cursor.close()
             conexion.close()
 
-    # Validar duplicados
-    duplicados = []
-    for numero_boleto in st.session_state.seleccionados:
-        cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
-        estado = cursor.fetchone()
-        if not estado or estado[0] != "Disponible":
-            duplicados.append(numero_boleto)
-
-    if duplicados:
-        st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
-    else:
-        # Actualizar boletos vendidos
-        for numero_boleto in st.session_state.seleccionados:
-            cursor.execute("""
-                UPDATE boletos
-                SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
-                WHERE numero = %s AND estado = 'Disponible'
-            """, (st.session_state.comprador, fecha_actual, numero_boleto))
-
-        conexion.commit()
-        st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
-
-        # Generar PDF y mostrar botón
-        generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
-
-    cursor.close()
-    conexion.close()
-
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
 params = st.query_params
 boleto_id = params.get("boleto", [None])[0]
