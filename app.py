@@ -146,7 +146,16 @@ if st.session_state.mostrar_confirmacion:
         conexion = conectar()
         cursor = conexion.cursor()
         fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # ... validaciones y actualización ...
 
+    conexion.commit()
+    st.success("✅ Venta registrada...")
+
+    generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+
+    cursor.close()
+    conexion.close()
+    
     # Validar duplicados
     duplicados = []
     for numero_boleto in st.session_state.seleccionados:
