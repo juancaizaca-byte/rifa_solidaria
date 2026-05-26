@@ -100,7 +100,21 @@ for i, numero in enumerate(boletos_pagina):
         st.session_state.seleccionados.remove(numero)
 
 # Mostrar seleccionados
-st.markdown("### 🎯 Boletos seleccionados:")
+st.markdown("""
+    <style>
+    .chip {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 2px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 if st.session_state.seleccionados:
     chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
     st.markdown(f"{len(st.session_state.seleccionados)} boletos seleccionados:<br>{chips_html}", unsafe_allow_html=True)
@@ -128,10 +142,10 @@ if st.session_state.mostrar_confirmacion:
     chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
     st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
 
-if st.button("✅ Confirmar venta"):
-    conexion = conectar()
-    cursor = conexion.cursor()
-    fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if st.button("✅ Confirmar venta"):
+        conexion = conectar()
+        cursor = conexion.cursor()
+        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Validar duplicados
     duplicados = []
