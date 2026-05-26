@@ -171,21 +171,28 @@ for i, numero in enumerate(boletos_pagina):
     elif not checked and numero in st.session_state.seleccionados:
         st.session_state.seleccionados.remove(numero)
 
-# Mostrar seleccionados
-st.markdown("""
-    <style>
-    .chip {
-        display: inline-block;
-        padding: 4px 10px;
-        margin: 2px;
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-    </style>
-""", unsafe_allow_html=True)
+    # Mostrar seleccionados
+    st.markdown("""
+        <style>
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;   /* 👈 permite que se acomoden en varias filas */
+            gap: 4px;
+        }
+        .chip {
+            padding: 4px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
+    st.markdown(f"<div class='chip-container'>{chips_html}</div>", unsafe_allow_html=True)
+
 
 if st.session_state.seleccionados:
     chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
@@ -260,13 +267,14 @@ if boleto_id:
     conexion = conectar()
     cursor = conexion.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM boletos WHERE id = %s", (boleto_id,))
+    cursor.execute("SELECT * FROM boletos WHERE numero = %s", (boleto_id,))
     resultado = cursor.fetchone()
+
 
     if resultado:
         st.header("🎟️ Validación de Boleto")
         st.success("✅ Boleto encontrado")
-        st.write(f"**Número de boleto:** {resultado['id']}")
+        st.write(f"**Número de boleto:** {resultado['numero']}")
         st.write(f"**Comprador:** {resultado['comprador']}")
         st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
         st.write(f"**Estado:** {resultado['estado']}")
@@ -292,7 +300,6 @@ if boleto_id:
 
         st.subheader("📞 Contacto:")
         st.write("WhatsApp del encargado: +593 962 308 005")
-        st.write("Correo: rifasolidaria@example.com")
 
     else:
         st.error("❌ Boleto no encontrado")
