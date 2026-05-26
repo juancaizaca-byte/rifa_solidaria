@@ -3,6 +3,7 @@ import mysql.connector
 from datetime import datetime
 from fpdf import FPDF
 import io
+import qrcode
 
 # Función para conectar con la base de datos
 
@@ -16,7 +17,7 @@ def conectar():
     )
 
 # Título principal de la app
-st.title("🎟️ Sistema de Rifa Solidaria")
+st.title("🎟️ Sistema de Rifa 🎟️")
 
 # Inicializar variables en session_state (persisten entre interacciones)
 if "seleccionados" not in st.session_state:
@@ -146,7 +147,7 @@ if st.session_state.mostrar_confirmacion:
             # Título centrado
             pdf.set_font("Helvetica", 'B', 18)
             pdf.set_text_color(0, 102, 204)
-            pdf.cell(200, 10, "Rifa Solidaria - Comprobante de Venta", ln=True, align="C")
+            pdf.cell(200, 10, "Tu Aporte Vale Oro - Comprobante", ln=True, align="C")
 
             pdf.ln(20)
 
@@ -197,10 +198,11 @@ if st.session_state.mostrar_confirmacion:
 
             pdf.set_font("Helvetica", '', 11)
             premios = [
-                "Smart TV 56 pulgadas",
-                "Juego de sala",
-                "Lavado de auto",
-                "Dos clases demostrativas de guitarra o piano"
+                "Set de vajilla para 4 personas",
+                "Cafetera electrica",
+                "Juego de sabanas",
+                "Dos premios sorpresa",
+                "Clase demostrativa de guitarra"
             ]
             for premio in premios:
                 pdf.set_x(x_centro)
@@ -208,7 +210,7 @@ if st.session_state.mostrar_confirmacion:
 
 
             # --- Pie de página con logo y texto ---
-            pdf.set_font("Helvetica", 'I', 10)              # Fuente cursiva para el texto
+            pdf.set_font("Helvetica", 'I', 9)              # Fuente cursiva para el texto
             pdf.set_text_color(0, 0, 0)                     # Color negro (puedes cambiarlo abajo)
 
             # Logo centrado dentro del pie de página
@@ -220,20 +222,46 @@ if st.session_state.mostrar_confirmacion:
             pdf.ln(40)                                      # Salto de línea debajo del logo
 
             # Texto profesional del pie de página
-            pdf.cell(200, 6, "Fecha del Sorteo el 15/06/2026", ln=True, align="C")
-            pdf.cell(200, 6, "El sorteo se realizará mediante la aplicación Microsoft Teams", ln=True, align="C")
+            pdf.cell(200, 6, "Fecha del Sorteo: Sábado 27/06/2026", ln=True, align="C")
+            pdf.cell(200, 6, "El sorteo se realizará de manera virtual, el enlace sera compartido vias redes sociales", ln=True, align="C")
 
 
-            # Exportar PDF a memoria
-            pdf_output = io.BytesIO()
-            pdf.output(pdf_output)
-            pdf_output.seek(0)
+        def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("Arial", size=12)
+
+            # Encabezado
+            pdf.cell(200, 10, txt="Comprobante de compra", ln=True, align="C")
+            pdf.cell(200, 10, txt=f"Comprador: {comprador}", ln=True)
+            pdf.cell(200, 10, txt=f"Fecha: {fecha_compra}", ln=True)
+
+            pdf.ln(10)
+
+            # Listado de boletos comprados
+            pdf.set_font("Arial", size=10)
+            pdf.cell(200, 10, txt="Boletos comprados:", ln=True)
+            for b in lista_boletos:
+                pdf.cell(200, 8, txt=f"- Boleto #{b}", ln=True)
+
+            # Generar QR con la URL que apunta a la página unificada
+            # Ejemplo: pasamos el primer boleto como referencia
+            url_qr = f"https://tuapp.streamlit.app/?boleto={lista_boletos[0]}"
+            qr_img = qrcode.make(url_qr)
+            qr_path = "qr_compra.png"
+            qr_img.save(qr_path)
+
+            # Insertar QR en el PDF
+            pdf.image(qr_path, x=150, y=50, w=40, h=40)
+
+            # Guardar PDF único
+            pdf.output(f"compra_{comprador}.pdf")
 
             # Botón de descarga
             st.download_button(
                 label="⬇️ Descargar comprobante PDF",
-                data=pdf_output,
-                file_name=f"venta_{fecha_actual.replace(':','-')}.pdf",
+                data=pdf.output(f"compra_{comprador}.pdf"),
+                file_name=f"compra_{comprador}.pdf",
                 mime="application/pdf"
             )
 
@@ -245,4 +273,50 @@ if st.session_state.mostrar_confirmacion:
         cursor.close()
         conexion.close()
 
+
+# --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
+params = st.experimental_get_query_params()
+boleto_id = params.get("boleto", [None])[0]
+
+if boleto_id:
+    cursor = conexion.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM boletos WHERE id = %s", (boleto_id,))
+    resultado = cursor.fetchone()
+
+    if resultado:
+        st.header("🎟️ Validación de Boleto")
+        st.success("✅ Boleto encontrado")
+        st.write(f"**Número de boleto:** {resultado['id']}")
+        st.write(f"**Comprador:** {resultado['comprador']}")
+        st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
+        st.write(f"**Estado:** {resultado['estado']}")
+
+        st.markdown("---")
+
+        st.header("🎉 Información de la Rifa – Apoyando nuestra causa")
+        st.write("📅 **Fecha del sorteo:** 30 de junio de 2026")
+        st.write("📍 **Lugar:** Transmisión en vivo por Teams")
+
+        st.subheader("🏆 Premios en juego:")
+        st.write("- 🍽️ Set de vajilla para 4 personas")
+        st.write("- ☕ Cafetera eléctrica")
+        st.write("- 🛏️ Juego de sábanas")
+        st.write("- 🎁 Dos premios sorpresa")
+        st.write("- 🎸 Clase demostrativa de guitarra")
+
+        st.subheader("📜 Reglas básicas:")
+        st.write("- Cada boleto es único y válido solo con su comprobante PDF.")
+        st.write("- El sorteo será público y transparente.")
+        st.write("- Los premios no son canjeables por dinero.")
+        st.write("- El comprador debe conservar su boleto hasta el día del sorteo.")
+
+        st.subheader("📞 Contacto:")
+        st.write("WhatsApp del encargado: +593 XXX XXX XXX")
+        st.write("Correo: rifasolidaria@example.com")
+
+    else:
+        st.error("❌ Boleto no encontrado")
+    cursor.close()
+else:
+    st.info("Escanee el QR de su boleto para ver validación e información de la rifa.")
 
