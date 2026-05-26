@@ -277,6 +277,13 @@ if boleto_id:
         st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
         st.write(f"**Estado:** {resultado['estado']}")
 
+    # Mostrar todos los boletos de ese comprador en una sola línea
+        cursor.execute("SELECT numero FROM boletos WHERE comprador = %s", (resultado['comprador'],))
+        boletos_comprador = [row[0] for row in cursor.fetchall()]
+        if boletos_comprador:
+            boletos_str = ", ".join(str(b) for b in boletos_comprador)
+            st.write(f"**Boletos comprados:** {boletos_str}")
+
         st.markdown("---")
 
         st.header("🎉 Información de la Rifa – Apoyando nuestra causa")
