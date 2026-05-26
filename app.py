@@ -215,39 +215,41 @@ if st.session_state.mostrar_confirmacion:
     st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
 
     if st.button("✅ Confirmar venta"):
-        conexion = conectar()
-        cursor = conexion.cursor()
-        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            conexion = conectar()
+            cursor = conexion.cursor()
+            fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    try:
-        # Validar duplicados
-        duplicados = []
-        for numero_boleto in st.session_state.seleccionados:
-            cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
-            estado = cursor.fetchone()
-            if not estado or estado[0] != "Disponible":
-                duplicados.append(numero_boleto)
-
-        if duplicados:
-            st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
-        else:
+            # Validar duplicados
+            duplicados = []
             for numero_boleto in st.session_state.seleccionados:
-                cursor.execute("""
-                    UPDATE boletos
-                    SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
-                    WHERE numero = %s AND estado = 'Disponible'
-                """, (st.session_state.comprador, fecha_actual, numero_boleto))
+                cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
+                estado = cursor.fetchone()
+                if not estado or estado[0] != "Disponible":
+                    duplicados.append(numero_boleto)
 
-            conexion.commit()
-            st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
+            if duplicados:
+                st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
+            else:
+                # Actualizar boletos vendidos
+                for numero_boleto in st.session_state.seleccionados:
+                    cursor.execute("""
+                        UPDATE boletos
+                        SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
+                        WHERE numero = %s AND estado = 'Disponible'
+                    """, (st.session_state.comprador, fecha_actual, numero_boleto))
 
-            generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+                conexion.commit()
+                st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
 
-    except Exception as e:
-        st.error(f"Error en la base de datos: {e}")
-    finally:
-        cursor.close()
-        conexion.close()
+                # Generar PDF y mostrar botón
+                generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+
+        except Exception as e:
+            st.error(f"Error en la base de datos: {e}")
+        finally:
+            cursor.close()
+            conexion.close()
 
     # Validar duplicados
     duplicados = []
