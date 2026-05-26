@@ -278,12 +278,15 @@ if boleto_id:
         st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
         st.write(f"**Estado:** {resultado['estado']}")
 
-        # Mostrar todos los boletos de ese comprador en una sola línea
-        cursor.execute("SELECT numero FROM boletos WHERE comprador = %s", (resultado['comprador'],))
+# Mostrar todos los boletos de esa misma compra
+        cursor.execute("""
+        SELECT numero FROM boletos 
+        WHERE comprador = %s AND fecha_compra = %s
+        """, (resultado['comprador'], resultado['fecha_compra']))
         boletos_comprador = [row['numero'] for row in cursor.fetchall()]
-        if boletos_comprador:
-            boletos_str = ", ".join(str(b) for b in boletos_comprador)
-            st.write(f"**Boletos comprados:** {boletos_str}")
+    if boletos_comprador:
+        boletos_str = ", ".join(str(b) for b in boletos_comprador)
+        st.write(f"**Boletos comprados:** {boletos_str}")
 
         st.markdown("---")
 
