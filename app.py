@@ -142,20 +142,41 @@ if st.session_state.mostrar_confirmacion:
     chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
     st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
 
-    if st.button("✅ Confirmar venta"):
-        conexion = conectar()
-        cursor = conexion.cursor()
-        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # ... validaciones y actualización ...
+if st.button("✅ Confirmar venta"):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    conexion.commit()
-    st.success("✅ Venta registrada...")
+    try:
+        # Validar duplicados
+        duplicados = []
+        for numero_boleto in st.session_state.seleccionados:
+            cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
+            estado = cursor.fetchone()
+            if not estado or estado[0] != "Disponible":
+                duplicados.append(numero_boleto)
 
-    generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+        if duplicados:
+            st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
+        else:
+            for numero_boleto in st.session_state.seleccionados:
+                cursor.execute("""
+                    UPDATE boletos
+                    SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
+                    WHERE numero = %s AND estado = 'Disponible'
+                """, (st.session_state.comprador, fecha_actual, numero_boleto))
 
-    cursor.close()
-    conexion.close()
-    
+            conexion.commit()
+            st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
+
+            generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+
+    except Exception as e:
+        st.error(f"Error en la base de datos: {e}")
+    finally:
+        cursor.close()
+        conexion.close()
+
     # Validar duplicados
     duplicados = []
     for numero_boleto in st.session_state.seleccionados:
@@ -224,7 +245,7 @@ if boleto_id:
         st.write("- El comprador debe conservar su boleto hasta el día del sorteo.")
 
         st.subheader("📞 Contacto:")
-        st.write("WhatsApp del encargado: +593 XXX XXX XXX")
+        st.write("WhatsApp del encargado: +593 962 308 005")
         st.write("Correo: rifasolidaria@example.com")
 
     else:
