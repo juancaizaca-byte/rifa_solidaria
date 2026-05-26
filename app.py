@@ -275,7 +275,7 @@ if st.session_state.mostrar_confirmacion:
 
 
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
-params = st.experimental_get_query_params()
+params = st.query_params
 boleto_id = params.get("boleto", [None])[0]
 
 if boleto_id:
