@@ -278,7 +278,16 @@ if boleto_id:
         st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
         st.write(f"**Estado:** {resultado['estado']}")
 
-# Mostrar todos los boletos de esa misma compra
+    if resultado:
+        st.header("🎟️ Validación de Boleto")
+        st.success("✅ Boleto encontrado")
+
+        st.write(f"**Número de boleto:** {resultado['numero']}")
+        st.write(f"**Comprador:** {resultado['comprador']}")
+        st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
+        st.write(f"**Estado:** {resultado['estado']}")
+
+    # Traer todos los boletos de la misma compra (mismo comprador y misma fecha)
         cursor.execute("""
         SELECT numero FROM boletos 
         WHERE comprador = %s AND fecha_compra = %s
@@ -286,8 +295,8 @@ if boleto_id:
         boletos_comprador = [row['numero'] for row in cursor.fetchall()]
     if boletos_comprador:
         boletos_str = ", ".join(str(b) for b in boletos_comprador)
-        st.write(f"**Boletos comprados:** {boletos_str}")
-
+        st.write(f"**Boletos comprados en esta transacción:** {boletos_str}")
+        
         st.markdown("---")
 
         st.header("🎉 Información de la Rifa – Apoyando nuestra causa")
