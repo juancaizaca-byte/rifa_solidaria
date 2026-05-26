@@ -133,54 +133,56 @@ def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
     st.session_state.comprador = ""
     st.session_state.mostrar_confirmacion = False
 
-# --- Interfaz principal ---
-st.title("🎟️ Sistema de Rifa 🎟️")
+params = st.query_params
+boleto_id = params.get("boleto", [None])[0]
 
-# Inicializar variables
-if "seleccionados" not in st.session_state:
-    st.session_state.seleccionados = []
-if "mostrar_confirmacion" not in st.session_state:
-    st.session_state.mostrar_confirmacion = False
-if "comprador" not in st.session_state:
-    st.session_state.comprador = ""
+# --- Mostrar solo la compra si NO viene del QR ---
+if not boleto_id:
+    # --- Interfaz principal ---
+    st.title("🎟️ Sistema de Rifa 🎟️")
 
-# Traer boletos disponibles
-conexion = conectar()
-cursor = conexion.cursor()
-cursor.execute("SELECT numero FROM boletos WHERE estado = 'Disponible' ORDER BY numero ASC")
-boletos_disponibles = [row[0] for row in cursor.fetchall()]
-cursor.close()
-conexion.close()
+    # Inicializar variables
+    if "seleccionados" not in st.session_state:
+        st.session_state.seleccionados = []
+    if "mostrar_confirmacion" not in st.session_state:
+        st.session_state.mostrar_confirmacion = False
+    if "comprador" not in st.session_state:
+        st.session_state.comprador = ""
 
-# Paginación
-pagina = st.number_input("Página", min_value=1, max_value=(len(boletos_disponibles)//50)+1, value=1)
-inicio = (pagina-1)*50
-fin = inicio+50
-boletos_pagina = boletos_disponibles[inicio:fin]
+    # Traer boletos disponibles
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT numero FROM boletos WHERE estado = 'Disponible' ORDER BY numero ASC")
+    boletos_disponibles = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conexion.close()
 
-# Mostrar boletos en grilla
-cols = st.columns(10)
-for i, numero in enumerate(boletos_pagina):
-    numero_sin_ceros = str(numero)
-    col = cols[i % 10]
-    checked = col.checkbox(numero_sin_ceros,
-                           key=f"{pagina}-{numero}",
-                           value=(numero in st.session_state.seleccionados))
-    if checked and numero not in st.session_state.seleccionados:
-        st.session_state.seleccionados.append(numero)
-    elif not checked and numero in st.session_state.seleccionados:
-        st.session_state.seleccionados.remove(numero)
+    # Paginación
+    pagina = st.number_input("Página", min_value=1, max_value=(len(boletos_disponibles)//50)+1, value=1)
+    inicio = (pagina-1)*50
+    fin = inicio+50
+    boletos_pagina = boletos_disponibles[inicio:fin]
+
+    # Mostrar boletos en grilla
+    cols = st.columns(10)
+    for i, numero in enumerate(boletos_pagina):
+        numero_sin_ceros = str(numero)
+        col = cols[i % 10]
+        checked = col.checkbox(numero_sin_ceros,
+                               key=f"{pagina}-{numero}",
+                               value=(numero in st.session_state.seleccionados))
+        if checked and numero not in st.session_state.seleccionados:
+            st.session_state.seleccionados.append(numero)
+        elif not checked and numero in st.session_state.seleccionados:
+            st.session_state.seleccionados.remove(numero)
 
     # Mostrar seleccionados
     st.markdown("""
         <style>
-        .chip-container {
-            display: flex;
-            flex-wrap: wrap;   /* 👈 permite que se acomoden en varias filas */
-            gap: 4px;
-        }
         .chip {
+            display: inline-block;
             padding: 4px 10px;
+            margin: 2px;
             background-color: #4CAF50;
             color: white;
             border-radius: 15px;
@@ -190,73 +192,69 @@ for i, numero in enumerate(boletos_pagina):
         </style>
     """, unsafe_allow_html=True)
 
-    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
-    st.markdown(f"<div class='chip-container'>{chips_html}</div>", unsafe_allow_html=True)
-
-
-if st.session_state.seleccionados:
-    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
-    st.markdown(f"{len(st.session_state.seleccionados)} boletos seleccionados:<br>{chips_html}", unsafe_allow_html=True)
-else:
-    st.write("Ninguno todavía")
-
-# Campo comprador
-input_comprador = st.text_input("Nombre del comprador", value=st.session_state.comprador)
-if input_comprador:
-    st.session_state.comprador = input_comprador.capitalize()
-
-# Botón registrar venta
-if st.button("Registrar venta"):
-    if not st.session_state.seleccionados:
-        st.warning("⚠️ Debes seleccionar al menos un boleto.")
-    elif not st.session_state.comprador.strip():
-        st.warning("⚠️ Debes ingresar el nombre del comprador.")
+    if st.session_state.seleccionados:
+        chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
+        st.markdown(f"{len(st.session_state.seleccionados)} boletos seleccionados:<br>{chips_html}", unsafe_allow_html=True)
     else:
-        st.session_state.mostrar_confirmacion = True
+        st.write("Ninguno todavía")
 
-# Confirmación
-if st.session_state.mostrar_confirmacion:
-    st.markdown("### ⚠️ Confirmación de venta")
-    st.write(f"Total: {len(st.session_state.seleccionados)} boletos")
-    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
-    st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
+    # Campo comprador
+    input_comprador = st.text_input("Nombre del comprador", value=st.session_state.comprador)
+    if input_comprador:
+        st.session_state.comprador = input_comprador.capitalize()
 
-    if st.button("✅ Confirmar venta"):
-        try:
-            conexion = conectar()
-            cursor = conexion.cursor()
-            fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Botón registrar venta
+    if st.button("Registrar venta"):
+        if not st.session_state.seleccionados:
+            st.warning("⚠️ Debes seleccionar al menos un boleto.")
+        elif not st.session_state.comprador.strip():
+            st.warning("⚠️ Debes ingresar el nombre del comprador.")
+        else:
+            st.session_state.mostrar_confirmacion = True
 
-            # Validar duplicados
-            duplicados = []
-            for numero_boleto in st.session_state.seleccionados:
-                cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
-                estado = cursor.fetchone()
-                if not estado or estado[0] != "Disponible":
-                    duplicados.append(numero_boleto)
+    # Confirmación
+    if st.session_state.mostrar_confirmacion:
+        st.markdown("### ⚠️ Confirmación de venta")
+        st.write(f"Total: {len(st.session_state.seleccionados)} boletos")
+        chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
+        st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
 
-            if duplicados:
-                st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
-            else:
-                # Actualizar boletos vendidos
+        if st.button("✅ Confirmar venta"):
+            try:
+                conexion = conectar()
+                cursor = conexion.cursor()
+                fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                # Validar duplicados
+                duplicados = []
                 for numero_boleto in st.session_state.seleccionados:
-                    cursor.execute("""
-                        UPDATE boletos
-                        SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
-                        WHERE numero = %s AND estado = 'Disponible'
-                    """, (st.session_state.comprador, fecha_actual, numero_boleto))
+                    cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
+                    estado = cursor.fetchone()
+                    if not estado or estado[0] != "Disponible":
+                        duplicados.append(numero_boleto)
 
-                conexion.commit()
-                st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
+                if duplicados:
+                    st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
+                else:
+                    # Actualizar boletos vendidos
+                    for numero_boleto in st.session_state.seleccionados:
+                        cursor.execute("""
+                            UPDATE boletos
+                            SET comprador = %s, estado = 'Vendido', fecha_Compra = %s
+                            WHERE numero = %s AND estado = 'Disponible'
+                        """, (st.session_state.comprador, fecha_actual, numero_boleto))
 
-                # Generar PDF y mostrar botón
-                generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+                    conexion.commit()
+                    st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} el {fecha_actual}")
 
-        except Exception as e:
-            st.error(f"Error en la base de datos: {e}")
-        finally:
-            cursor.close()
-            conexion.close()
+                    # Generar PDF y mostrar botón
+                    generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+
+            except Exception as e:
+                st.error(f"Error en la base de datos: {e}")
+            finally:
+                cursor.close()
+                conexion.close()
 
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
 params = st.query_params
