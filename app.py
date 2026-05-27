@@ -20,7 +20,7 @@ def conectar():
 # Función para generar PDF con QR y botón de descarga
 from fpdf.enums import XPos, YPos
 
-def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
+def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
     pdf = FPDF()
     pdf.add_page()
 
@@ -52,6 +52,13 @@ def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
     pdf.set_font("Helvetica", '', 12)
     pdf.cell(100, 8, text=comprador,
              new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.cell(40, 8, text="Teléfono:")
+    pdf.set_font("Helvetica", '', 12)
+    pdf.cell(100, 8, text=telefono,
+             new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
 
     pdf.set_font("Helvetica", 'B', 12)
     pdf.cell(40, 8, text="Fecha:")
@@ -127,10 +134,10 @@ def generar_pdf_compra(lista_boletos, comprador, fecha_compra):
         mime="application/pdf"
     )
 
-
     # Limpiar estados
     st.session_state.seleccionados = []
     st.session_state.comprador = ""
+    st.session_state.telefono = ""
     st.session_state.mostrar_confirmacion = False
 
 params = st.query_params
@@ -258,7 +265,7 @@ if st.session_state.mostrar_confirmacion:
                 st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} ({st.session_state.telefono}) el {fecha_actual}")
 
                 # Generar PDF y mostrar botón
-                generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, fecha_actual)
+                generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, st.session_state.telefono, fecha_actual)
 
         except Exception as e:
             st.error(f"Error en la base de datos: {e}")
