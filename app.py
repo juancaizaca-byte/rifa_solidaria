@@ -164,7 +164,7 @@ if transaccion_id:
     cursor = conexion.cursor(dictionary=True)
 
 # Traer datos de la transacción
-    cursor.execute("SELECT cantidad_reservada FROM transacciones WHERE id = %s", (transaccion_id,))
+    cursor.execute("SELECT cantidad_reservada FROM transacciones WHERE id_transaccion = %s", (transaccion_id,))
     transaccion = cursor.fetchone()
     cursor.close()
     conexion.close()
@@ -305,7 +305,7 @@ elif not boleto_id:
     # Sección: Boletos
     cantidad_boletos = st.number_input("🎟️ Ingrese la cantidad de boletos vendidos:", min_value=1, step=1)
 
-    if st.button("Generar transacción"):
+    if st.button("Generar URL"):
         id_transaccion = generar_id_transaccion()
         url_unico = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/"
 
