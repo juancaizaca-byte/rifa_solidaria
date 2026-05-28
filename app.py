@@ -9,6 +9,17 @@ import io
 import qrcode
 from fpdf.enums import XPos, YPos
 
+# --- Inicializar variables en session_state ---
+if "seleccionados" not in st.session_state:
+    st.session_state.seleccionados = []
+
+if "comprador" not in st.session_state:
+    st.session_state.comprador = ""
+
+if "telefono" not in st.session_state:
+    st.session_state.telefono = ""
+
+
 # Función conectar
 def conectar():
     return mysql.connector.connect(
