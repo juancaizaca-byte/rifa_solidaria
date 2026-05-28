@@ -215,17 +215,20 @@ if transaccion_id:
         inicio = (pagina - 1) * 50
         fin = inicio + 50
         boletos_pagina = boletos_disponibles[inicio:fin]
-        # Mostrar boletos de la página actual
-        st.write(f"Mostrando página {pagina} de {total_paginas}")
 
 
         # Mostrar boletos en grilla (5 columnas para mejor adaptación en móvil)
         cols = st.columns(5)
         for i, numero in enumerate(boletos_pagina):
             col = cols[i % 5]
-            checked = col.checkbox(str(numero),
-                                key=f"{pagina}-{numero}",
-                                value=(numero in st.session_state.seleccionados))
+
+            # 👇 Convertir '0001' → '1' al mostrar
+            boleto_sin_ceros = str(int(numero))
+
+            checked = col.checkbox(
+                boleto_sin_ceros,
+                key=f"{pagina}-{numero}",
+                value=(numero in st.session_state.seleccionados))
 
             if checked:
                 if numero not in st.session_state.seleccionados:
