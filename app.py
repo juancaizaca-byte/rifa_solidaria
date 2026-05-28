@@ -299,7 +299,7 @@ elif not boleto_id:
     }
 
     # 🎨 Encabezado con estilo
-    st.markdown("<h1 style='color:#1E3A8A; text-align:center;'>📋 Registro de venta - Vendedor</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#1E3A8A; text-align:center;'>📋 Registro de venta </h1>", unsafe_allow_html=True)
     st.markdown("<hr style='border:1px solid #ccc;'>", unsafe_allow_html=True)
 
     # Sección: Boletos
@@ -325,20 +325,8 @@ elif not boleto_id:
 
             # Sección: Confirmación
             st.success("✅ Transacción creada con éxito. Comparta este enlace con el comprador.")
-            st.markdown(f"<p style='font-size:18px; color:purple;'>🔗 URL único:</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:16px; color:purple;'>🔗 URL único:</p>", unsafe_allow_html=True)
             st.code(url_unico, language='text')
-
-            # Botón copiar enlace
-            st.markdown(
-                f"""
-                <button onclick="navigator.clipboard.writeText('{url_unico}');
-                alert('✅ Enlace copiado al portapapeles');"
-                style='background-color:#6FBF73;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;'>
-                📋 Copiar enlace
-                </button>
-                """,
-                unsafe_allow_html=True
-            )
 
             # Sección: Compartir
             st.markdown("<p style='color:#444; font-size:18px;'>🔗 Compartir</p>", unsafe_allow_html=True)
