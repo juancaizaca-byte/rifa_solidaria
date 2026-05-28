@@ -188,7 +188,7 @@ if transaccion_id:
     else:
         cantidad_reservada = transaccion["cantidad_reservada"]
 
-        st.header("🎟️ Selección de boletos - Comprador")
+        st.header("🎟️ Selección de boletos")
         st.write(f"Debes elegir exactamente {cantidad_reservada} boletos disponibles.")
 
         # Traer boletos disponibles
