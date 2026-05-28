@@ -155,12 +155,15 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
 
 # --- PARÁMETROS DE URL ---
 params = st.query_params
-transaccion_id = params.get("transaccion", [None])[0]
-st.write("DEBUG transaccion_id recibido:", transaccion_id)
-boleto_id = params.get("boleto", [None])[0]
+transaccion_id = params.get("transaccion")
+boleto_id = params.get("boleto")
 
 # --- ####### Formulario del comprador #######---
 if transaccion_id:
+    if isinstance(transaccion_id, list):
+        transaccion_id = transaccion_id[0]
+    transaccion_id = transaccion_id.strip()
+    st.write("DEBUG transaccion_id recibido:", repr(transaccion_id))
     conexion = conectar()
     cursor = conexion.cursor(dictionary=True)
 
