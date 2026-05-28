@@ -200,12 +200,16 @@ if transaccion_id:
         conexion.close()
 
         # Paginación
-        total_paginas = max(1, (len(boletos_disponibles) // 50) + 1)
-        pagina = st.slider("Página", min_value=1, max_value=total_paginas, value=1)
-        inicio = (pagina-1)*50
-        fin = inicio+50
-        boletos_pagina = boletos_disponibles[inicio:fin]
+        total_paginas = (len(boletos_disponibles) // 50) + 1
 
+        if total_paginas > 1:
+            pagina = st.slider("Página", min_value=1, max_value=total_paginas, value=1)
+        else:
+            pagina = 1
+
+        inicio = (pagina - 1) * 50
+        fin = inicio + 50
+        boletos_pagina = boletos_disponibles[inicio:fin]
         # Mostrar boletos en grilla (5 columnas para mejor adaptación en móvil)
         cols = st.columns(5)
         for i, numero in enumerate(boletos_pagina):
