@@ -307,7 +307,7 @@ elif not boleto_id:
 
     if st.button("Generar URL"):
         id_transaccion = generar_id_transaccion()
-        url_unico = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/"
+        url_unico = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?transaccion={id_transaccion}"
 
         try:
             conn = mysql.connector.connect(**db_config)
