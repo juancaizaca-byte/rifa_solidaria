@@ -1,7 +1,7 @@
 # --- IMPORTS Y FUNCIONES ---
 import streamlit as st
 import mysql.connector
-import datetime
+from datetime import datetime
 import random
 import string
 from fpdf import FPDF
