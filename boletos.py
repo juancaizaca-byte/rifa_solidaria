@@ -1,27 +1,32 @@
-## 🙌👍PARA IMPORTAR LOS BOLETOS ##
+import mysql.connector   # Librería para conectar Python con MySQL
 
-import mysql.connector   # Importa la librería para conectar Python con MySQL
-
-# Conexión a MySQL
+# 🔗 Conexión a Railway (usa el host y puerto público)
 conexion = mysql.connector.connect(
-    host="localhost",       
-    user="root",            
-    password="TU PASSWORD AQUÍ", 
-    database="rifa_db"      
+    host="zephyr.proxy.rlwy.net",       # 👈 host público de Railway
+    port=54106,                         # 👈 puerto público
+    user="root",                        # 👈 usuario
+    password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",  # 👈 tu clave
+    database="railway"                  # 👈 nombre de la base
 )
 
 cursor = conexion.cursor()
 
 # 🚀 Inserción automática de boletos del 0001 al 1000
 for i in range(1, 1001):
-    numero = str(i).zfill(4)  # Convierte 1 en 0001, 25 en 0025, etc.
+    numero = str(i).zfill(4)  # Convierte 1 en '0001', 25 en '0025', etc.
     cursor.execute(
-        "INSERT INTO boletos (numero, comprador, estado) VALUES (%s, %s, %s)",
-        (numero, "", "Disponible")  
+        """
+        INSERT INTO boletos (numero, comprador, telefono, estado, fecha_compra, id_transaccion)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (numero, "", "", "Disponible", None, None)  
+        # comprador vacío, teléfono vacío, estado inicial "Disponible",
+        # fecha_compra NULL, id_transaccion NULL
     )
 
-conexion.commit()   # Guarda los cambios en la base
-print("✅👌 Se insertaron los boletos del 0001 al 1000")
+# 💾 Guardar cambios en la base
+conexion.commit()
+print("✅👌 Se insertaron los boletos del 0001 al 1000 en Railway")
 
 # 📊 Verificación: contar boletos
 cursor.execute("SELECT COUNT(*) FROM boletos")
@@ -35,5 +40,6 @@ print("🔎 Ejemplo de boletos cargados:")
 for fila in filas:
     print(fila)
 
+# 🔒 Cerrar cursor y conexión
 cursor.close()
 conexion.close()
