@@ -217,7 +217,6 @@ if transaccion_id:
         boletos_pagina = boletos_disponibles[inicio:fin]
         # Mostrar boletos de la página actual
         st.write(f"Mostrando página {pagina} de {total_paginas}")
-        st.write(boletos_pagina)
 
 
         # Mostrar boletos en grilla (5 columnas para mejor adaptación en móvil)
