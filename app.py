@@ -156,6 +156,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
 # --- PARÁMETROS DE URL ---
 params = st.query_params
 transaccion_id = params.get("transaccion", [None])[0]
+st.write("DEBUG transaccion_id recibido:", transaccion_id)
 boleto_id = params.get("boleto", [None])[0]
 
 # --- ####### Formulario del comprador #######---
