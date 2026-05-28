@@ -200,7 +200,7 @@ if transaccion_id:
         conexion.close()
 
         # Paginación
-        total_paginas = (len(boletos_disponibles) // 50) + 1
+        total_paginas = max(1, (len(boletos_disponibles) // 50) + 1)
         pagina = st.slider("Página", min_value=1, max_value=total_paginas, value=1)
         inicio = (pagina-1)*50
         fin = inicio+50
