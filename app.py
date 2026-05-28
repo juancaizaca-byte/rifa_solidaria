@@ -174,7 +174,6 @@ if transaccion_id:
     if isinstance(transaccion_id, list):
         transaccion_id = transaccion_id[0]
     transaccion_id = transaccion_id.strip()
-    st.write("DEBUG transaccion_id recibido:", repr(transaccion_id))
     conexion = conectar()
     cursor = conexion.cursor(dictionary=True)
 
@@ -201,7 +200,8 @@ if transaccion_id:
         conexion.close()
 
         # Paginación
-        pagina = st.number_input("Página", min_value=1, max_value=(len(boletos_disponibles)//50)+1, value=1)
+        total_paginas = (len(boletos_disponibles) // 50) + 1
+        pagina = st.slider("Página", min_value=1, max_value=total_paginas, value=1)
         inicio = (pagina-1)*50
         fin = inicio+50
         boletos_pagina = boletos_disponibles[inicio:fin]
@@ -220,7 +220,6 @@ if transaccion_id:
                         st.session_state.seleccionados.append(numero)
                     else:
                         # 👇 revertimos el checkbox si ya alcanzó el límite
-                        st.session_state[f"{pagina}-{numero}"] = False
                         st.warning(f"Ya seleccionaste {cantidad_reservada} boletos, no puedes elegir más.")
             else:
                 if numero in st.session_state.seleccionados:
