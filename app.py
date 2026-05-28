@@ -1,11 +1,15 @@
+# --- IMPORTS Y FUNCIONES ---
 import streamlit as st
 import mysql.connector
-from datetime import datetime
+import datetime
+import random
+import string
 from fpdf import FPDF
 import io
 import qrcode
+from fpdf.enums import XPos, YPos
 
-# Función para conectar con la base de datos
+# Función conectar
 def conectar():
     return mysql.connector.connect(
         host="zephyr.proxy.rlwy.net",
@@ -13,12 +17,20 @@ def conectar():
         user="root",
         password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
         database="railway",
-        autocommit=True,          # 👈 fuerza commit automático
-        connection_timeout=60     # 👈 evita que se corte rápido
+        autocommit=True,
+        connection_timeout=60
     )
 
-# Función para generar PDF con QR y botón de descarga
-from fpdf.enums import XPos, YPos
+# Función generar PDF
+def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
+    # ... (tu función completa de PDF tal como la tienes ahora)
+    pass
+
+# Función generar ID transacción
+def generar_id_transaccion():
+    fecha = datetime.datetime.now().strftime("%Y%m%d")
+    random_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return f"TXN_{fecha}_{random_code}"
 
 def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
     pdf = FPDF()
@@ -141,119 +153,109 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
     st.session_state.mostrar_confirmacion = False
 
 params = st.query_params
+transaccion_id = params.get("transaccion", [None])[0]
 boleto_id = params.get("boleto", [None])[0]
 
-# --- Mostrar solo la compra si NO viene del QR ---
-if not boleto_id:
-    
-# --- Interfaz principal ---
-
-    st.title("🎟️ Sistema de Rifa 🎟️")
-
-# Inicializar variables
-if "seleccionados" not in st.session_state:
-    st.session_state.seleccionados = []
-if "mostrar_confirmacion" not in st.session_state:
-    st.session_state.mostrar_confirmacion = False
-if "comprador" not in st.session_state:
-    st.session_state.comprador = ""
-if "telefono" not in st.session_state:
-    st.session_state.telefono = ""
-
-# Traer boletos disponibles
+# --- ####### Formulario del comprador #######---
 conexion = conectar()
-cursor = conexion.cursor()
-cursor.execute("SELECT numero FROM boletos WHERE estado = 'Disponible' ORDER BY numero ASC")
-boletos_disponibles = [row[0] for row in cursor.fetchall()]
+cursor = conexion.cursor(dictionary=True)
+
+# Traer datos de la transacción
+cursor.execute("SELECT cantidad_reservada FROM transacciones WHERE id = %s", (transaccion_id,))
+transaccion = cursor.fetchone()
 cursor.close()
 conexion.close()
 
-# Paginación
-pagina = st.number_input("Página", min_value=1, max_value=(len(boletos_disponibles)//50)+1, value=1)
-inicio = (pagina-1)*50
-fin = inicio+50
-boletos_pagina = boletos_disponibles[inicio:fin]
-
-# Mostrar boletos en grilla (5 columnas para mejor adaptación en móvil)
-cols = st.columns(5)
-for i, numero in enumerate(boletos_pagina):
-    numero_sin_ceros = str(numero)
-    col = cols[i % 5]
-    checked = col.checkbox(numero_sin_ceros,
-                           key=f"{pagina}-{numero}",
-                           value=(numero in st.session_state.seleccionados))
-    if checked and numero not in st.session_state.seleccionados:
-        st.session_state.seleccionados.append(numero)
-    elif not checked and numero in st.session_state.seleccionados:
-        st.session_state.seleccionados.remove(numero)
-
-# Mostrar seleccionados con chips verdes
-st.markdown("""
-    <style>
-    .chip {
-        display: inline-block;
-        padding: 4px 10px;
-        margin: 2px;
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: bold;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-if st.session_state.seleccionados:
-    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
-    st.markdown(f"{len(st.session_state.seleccionados)} boletos seleccionados:<br>{chips_html}", unsafe_allow_html=True)
+if not transaccion:
+    st.error("❌ Transacción no encontrada")
 else:
-    st.write("Ninguno todavía")
+    cantidad_reservada = transaccion["cantidad_reservada"]
 
-# Campos comprador y teléfono
-input_comprador = st.text_input("Nombre del comprador", value=st.session_state.comprador)
-if input_comprador:
-    st.session_state.comprador = input_comprador.capitalize()
+    st.header("🎟️ Selección de boletos - Comprador")
+    st.write(f"Debes elegir exactamente {cantidad_reservada} boletos disponibles.")
 
-input_telefono = st.text_input("Número de teléfono", value=st.session_state.telefono)
-if input_telefono:
-    st.session_state.telefono = input_telefono
+    # Traer boletos disponibles
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT numero FROM boletos WHERE estado = 'Disponible' ORDER BY numero ASC")
+    boletos_disponibles = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    conexion.close()
 
-# Botón registrar venta
-if st.button("Registrar venta"):
-    if not st.session_state.seleccionados:
-        st.warning("⚠️ Debes seleccionar al menos un boleto.")
-    elif not st.session_state.comprador.strip():
-        st.warning("⚠️ Debes ingresar el nombre del comprador.")
-    elif not st.session_state.telefono.strip():
-        st.warning("⚠️ Debes ingresar el número de teléfono.")
+    # Paginación
+    pagina = st.number_input("Página", min_value=1, max_value=(len(boletos_disponibles)//50)+1, value=1)
+    inicio = (pagina-1)*50
+    fin = inicio+50
+    boletos_pagina = boletos_disponibles[inicio:fin]
+
+    # Mostrar boletos en grilla (5 columnas para mejor adaptación en móvil)
+    cols = st.columns(5)
+    for i, numero in enumerate(boletos_pagina):
+        col = cols[i % 5]
+        checked = col.checkbox(str(numero),
+                               key=f"{pagina}-{numero}",
+                               value=(numero in st.session_state.seleccionados))
+
+        if checked:
+            if numero not in st.session_state.seleccionados:
+                if len(st.session_state.seleccionados) < cantidad_reservada:
+                    st.session_state.seleccionados.append(numero)
+                else:
+                    # 👇 revertimos el checkbox si ya alcanzó el límite
+                    st.session_state[f"{pagina}-{numero}"] = False
+                    st.warning(f"Ya seleccionaste {cantidad_reservada} boletos, no puedes elegir más.")
+        else:
+            if numero in st.session_state.seleccionados:
+                st.session_state.seleccionados.remove(numero)
+
+    # Mostrar seleccionados con chips verdes
+    st.markdown("""
+        <style>
+        .chip {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 2px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    if st.session_state.seleccionados:
+        chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
+        st.markdown(f"{len(st.session_state.seleccionados)} / {cantidad_reservada} boletos seleccionados:<br>{chips_html}", unsafe_allow_html=True)
     else:
-        st.session_state.mostrar_confirmacion = True
+        st.write("Ninguno todavía")
 
-# Confirmación
-if st.session_state.mostrar_confirmacion:
-    st.markdown("### ⚠️ Confirmación de venta")
-    st.write(f"Total: {len(st.session_state.seleccionados)} boletos")
-    chips_html = "".join([f"<span class='chip'>{n}</span>" for n in st.session_state.seleccionados])
-    st.markdown(f"Boletos a vender:<br>{chips_html}", unsafe_allow_html=True)
+    # Campos comprador y teléfono
+    input_comprador = st.text_input("Nombre del comprador", value=st.session_state.comprador)
+    if input_comprador:
+        st.session_state.comprador = input_comprador.capitalize()
 
-    if st.button("✅ Confirmar venta"):
-        try:
-            conexion = conectar()
-            cursor = conexion.cursor()
-            fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    input_telefono = st.text_input("Número de teléfono", value=st.session_state.telefono)
+    if input_telefono:
+        st.session_state.telefono = input_telefono
 
-            # Validar duplicados
-            duplicados = []
-            for numero_boleto in st.session_state.seleccionados:
-                cursor.execute("SELECT estado FROM boletos WHERE numero = %s", (numero_boleto,))
-                estado = cursor.fetchone()
-                if not estado or estado[0] != "Disponible":
-                    duplicados.append(numero_boleto)
+    # Botón confirmar
+    if st.button("✅ Confirmar compra"):
+        if len(st.session_state.seleccionados) < cantidad_reservada:
+            st.warning(f"⚠️ Debes seleccionar {cantidad_reservada} boletos. Te falta {cantidad_reservada - len(st.session_state.seleccionados)}.")
+        elif len(st.session_state.seleccionados) > cantidad_reservada:
+            st.warning(f"⚠️ Debes seleccionar exactamente {cantidad_reservada} boletos.")
+        elif not st.session_state.comprador.strip():
+            st.warning("⚠️ Debes ingresar el nombre del comprador.")
+        elif not st.session_state.telefono.strip():
+            st.warning("⚠️ Debes ingresar el número de teléfono.")
+        else:
+            try:
+                conexion = conectar()
+                cursor = conexion.cursor()
+                fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            if duplicados:
-                st.error(f"⚠️ Los siguientes boletos ya no están disponibles: {', '.join([str(n) for n in duplicados])}")
-            else:
-                # Actualizar boletos vendidos con comprador y teléfono
+                # Actualizar boletos vendidos
                 for numero_boleto in st.session_state.seleccionados:
                     cursor.execute("""
                         UPDATE boletos
@@ -262,16 +264,94 @@ if st.session_state.mostrar_confirmacion:
                     """, (st.session_state.comprador, st.session_state.telefono, fecha_actual, numero_boleto))
 
                 conexion.commit()
-                st.success(f"✅ Venta registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} ({st.session_state.telefono}) el {fecha_actual}")
+                st.success(f"✅ Compra registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} ({st.session_state.telefono})")
 
-                # Generar PDF y mostrar botón
+                # Generar PDF
                 generar_pdf_compra(st.session_state.seleccionados, st.session_state.comprador, st.session_state.telefono, fecha_actual)
 
-        except Exception as e:
-            st.error(f"Error en la base de datos: {e}")
-        finally:
-            cursor.close()
-            conexion.close()
+            except Exception as e:
+                st.error(f"Error en la base de datos: {e}")
+            finally:
+                cursor.close()
+                conexion.close()
+
+import streamlit as st
+import datetime
+import random
+import string
+import mysql.connector
+
+def generar_id_transaccion():
+    fecha = datetime.datetime.now().strftime("%Y%m%d")
+    random_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return f"TXN_{fecha}_{random_code}"
+
+db_config = {
+    "host": "zephyr.proxy.rlwy.net",
+    "port": 54106,
+    "user": "root",
+    "password": "tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
+    "database": "railway"
+}
+
+# 🎨 Encabezado con estilo
+st.markdown("<h1 style='color:#1E3A8A; text-align:center;'>📋 Registro de venta - Vendedor</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border:1px solid #ccc;'>", unsafe_allow_html=True)
+
+# Sección: Boletos
+cantidad_boletos = st.number_input("🎟️ Ingrese la cantidad de boletos vendidos:", min_value=1, step=1)
+
+if st.button("Generar transacción"):
+    id_transaccion = generar_id_transaccion()
+    url_unico = f"https://tuapp.streamlit.app/?transaccion={id_transaccion}"
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        sql = """
+        INSERT INTO transacciones (id_transaccion, cantidad_reservada, fecha, estado)
+        VALUES (%s, %s, %s, %s)
+        """
+        values = (id_transaccion, cantidad_boletos, datetime.datetime.now(), "Reservado")
+        cursor.execute(sql, values)
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # Sección: Confirmación
+        st.success("✅ Transacción creada con éxito. Comparta este enlace con el comprador.")
+        st.markdown(f"<p style='font-size:18px; color:purple;'>🔗 URL único:</p>", unsafe_allow_html=True)
+        st.code(url_unico, language='text')
+
+        # Botón copiar enlace
+        st.markdown(
+            f"""
+            <button onclick="navigator.clipboard.writeText('{url_unico}');
+            alert('✅ Enlace copiado al portapapeles');"
+            style='background-color:#6FBF73;color:white;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;'>
+            📋 Copiar enlace
+            </button>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # Sección: Compartir
+        st.markdown("<p style='color:#444; font-size:18px;'>🔗 Compartir</p>", unsafe_allow_html=True)
+        st.markdown(
+            f"""
+            <div style='margin-top:10px;'>
+                <a href="https://wa.me/?text=Participa%20en%20la%20rifa:%20{url_unico}" target="_blank"
+                style='background-color:#25D366;color:white;padding:6px 12px;border-radius:5px;text-decoration:none;margin-right:8px;'>💬 WhatsApp</a>
+                <a href="mailto:?subject=Rifa%20Solidaria&body=Tu%20enlace:%20{url_unico}" target="_blank"
+                style='background-color:#0072C6;color:white;padding:6px 12px;border-radius:5px;text-decoration:none;'>📧 Correo</a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    except Exception as e:
+        st.error(f"❌ Error al guardar en la base: {e}")
 
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
 params = st.query_params
