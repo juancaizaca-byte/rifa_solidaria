@@ -397,41 +397,42 @@ if isinstance(info_param, list):   # si viene como lista, tomar el primer valor
     info_param = info_param[0]
 
 if info_param == "rifa":
-    # 👇 Bloque con fondo celeste muy claro y HTML bien interpretado
+    # 👇 Bloque con fondo celeste muy claro y Markdown para listas
     st.markdown(
         """
         <div style='background-color:#E6F7FF; padding:15px; border-radius:10px;'>
-            <h2 style='color:#1E3A8A;'>🎉 Información oficial de la Rifa</h2>
-            <p>📅 <b>Fecha del sorteo:</b> 15 de julio de 2026</p>
-            <p>📍 <b>Lugar:</b> Transmisión en vivo por Teams</p>
-
-            <h3>🏆 Premios en juego:</h3>
-            <ul style='margin-left:20px;'>
-                <li>🍽️ Set de vajilla para 4 personas</li>
-                <li>☕ Cafetera eléctrica</li>
-                <li>🛏️ Juego de sábanas</li>
-                <li>🎁 Dos premios sorpresa</li>
-                <li>🎸 Clase demostrativa de guitarra</li>
-            </ul>
-
-            <h3>📜 Reglas básicas:</h3>
-            <ul style='margin-left:20px;'>
-                <li>Cada boleto es único y válido solo con su comprobante PDF.</li>
-                <li>El sorteo será público y transparente.</li>
-                <li>Los premios no son canjeables por dinero.</li>
-                <li>El comprador debe conservar su boleto (PDF) hasta el día del sorteo.</li>
-            </ul>
-
-            <h3>📞 Contacto:</h3>
-            <p>WhatsApp: +593 962 308 005</p>
         </div>
         """,
         unsafe_allow_html=True
     )
 
+    st.markdown("## 🎉 Información oficial de la Rifa")
+    st.write("📅 **Fecha del sorteo:** 15 de julio de 2026")
+    st.write("📍 **Lugar:** Transmisión en vivo por Teams")
+
+    st.markdown("### 🏆 Premios en juego")
+    st.markdown("""
+    - 🍽️ Set de vajilla para 4 personas  
+    - ☕ Cafetera eléctrica  
+    - 🛏️ Juego de sábanas  
+    - 🎁 Dos premios sorpresa  
+    - 🎸 Clase demostrativa de guitarra  
+    """)
+
+    st.markdown("### 📜 Reglas básicas")
+    st.markdown("""
+    - Cada boleto es único y válido solo con su comprobante PDF.  
+    - El sorteo será público y transparente.  
+    - Los premios no son canjeables por dinero.  
+    - El comprador debe conservar su boleto (PDF) hasta el día del sorteo.  
+    """)
+
+    st.markdown("### 📞 Contacto")
+    st.write("WhatsApp: +593 962 308 005")
+
     # 👇 Logo oficial como sello digital
     try:
-        st.image("logo3.png", width=200)
+        st.image("logo3.png", width=180)
     except:
         st.info("Logo oficial no disponible")
 
