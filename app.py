@@ -378,7 +378,11 @@ elif not boleto_id:
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
 params = st.query_params
 boleto_id = params.get("boleto", [None])[0]
-info_param = params.get("info", [None])[0]
+
+# 👇 Ajuste: normalizar el parámetro "info"
+info_param = params.get("info")
+if isinstance(info_param, list):   # si viene como lista, tomar el primer valor
+    info_param = info_param[0]
 
 if info_param == "rifa":
     # 👇 Bloque con fondo celeste muy claro
