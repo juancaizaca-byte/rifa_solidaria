@@ -49,7 +49,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
 
     # Logo superior
     try:
-        pdf.image("logo.png", x=10, y=8, w=30)
+        pdf.image("logo3.png", x=10, y=8, w=30)
     except:
         pass
 
@@ -200,7 +200,7 @@ if transaccion_id:
     else:
         cantidad_reservada = transaccion["cantidad_reservada"]
 
-        st.header("🎟️ Selección de boletos")
+        st.markdown("<h1 style='color:#1E3A8A; text-align:center;'>🎟️ Selección de boletos </h1>", unsafe_allow_html=True)
         st.write(f"Debes elegir exactamente {cantidad_reservada} boletos disponibles.")
 
         # Traer boletos disponibles
@@ -429,12 +429,6 @@ if info_param == "rifa":
 
     st.markdown("### 📞 Contacto")
     st.write("WhatsApp: +593 962 308 005")
-
-    # 👇 Logo oficial como sello digital
-    try:
-        st.image("logo3.png", width=180)
-    except:
-        st.info("Logo oficial no disponible")
 
 elif boleto_id:
     # 👇 Validación interna de boletos (sin mostrar datos sensibles)
