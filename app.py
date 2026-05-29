@@ -54,7 +54,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
         pass
 
     # Generar QR y ponerlo arriba a la derecha
-    url_qr = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?boleto={lista_boletos[0]}"
+    url_qr = "https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?info=rifa"
     qr_img = qrcode.make(url_qr)
     qr_path = "qr_compra.png"
     qr_img.save(qr_path)
@@ -378,51 +378,61 @@ elif not boleto_id:
 # --- VALIDACIÓN + INFORMACIÓN DE LA RIFA ---
 params = st.query_params
 boleto_id = params.get("boleto", [None])[0]
+info_param = params.get("info", [None])[0]
 
-if boleto_id:
-    # 👇 abrir nueva conexión aquí
+if info_param == "rifa":
+    # 👇 Bloque con fondo celeste muy claro
+    st.markdown(
+        """
+        <div style='background-color:#E6F7FF; padding:15px; border-radius:10px;'>
+            <h2 style='color:#1E3A8A;'>🎉 Información oficial de la Rifa</h2>
+            <p>📅 <b>Fecha del sorteo:</b> 15 de julio de 2026</p>
+            <p>📍 <b>Lugar:</b> Transmisión en vivo por Teams</p>
+
+            <h3>🏆 Premios en juego:</h3>
+            <ul>
+                <li>🍽️ Set de vajilla para 4 personas</li>
+                <li>☕ Cafetera eléctrica</li>
+                <li>🛏️ Juego de sábanas</li>
+                <li>🎁 Dos premios sorpresa</li>
+                <li>🎸 Clase demostrativa de guitarra</li>
+            </ul>
+
+            <h3>📜 Reglas básicas:</h3>
+            <ul>
+                <li>Cada boleto es único y válido solo con su comprobante PDF.</li>
+                <li>El sorteo será público y transparente.</li>
+                <li>Los premios no son canjeables por dinero.</li>
+                <li>El comprador debe conservar su boleto (PDF) hasta el día del sorteo.</li>
+            </ul>
+
+            <h3>📞 Contacto:</h3>
+            <p>WhatsApp: +593 962 308 005</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # 👇 Logo oficial como sello digital
+    try:
+        st.image("logo3.png", width=200)
+    except:
+        st.info("Logo oficial no disponible")  # Mensaje si el logo no está en la carpeta
+
+elif boleto_id:
+    # 👇 Validación interna de boletos (sin mostrar datos sensibles)
     conexion = conectar()
     cursor = conexion.cursor(dictionary=True)
 
     cursor.execute("SELECT * FROM boletos WHERE numero = %s", (boleto_id,))
     resultado = cursor.fetchone()
 
-
     if resultado:
-        st.header("🎟️ Validación de Boleto")
-        st.success("✅ Boleto encontrado")
-
-        st.write(f"**Comprador:** {resultado['comprador']}")
-        st.write(f"**Fecha de compra:** {resultado['fecha_compra']}")
-        st.write(f"**Estado:** {resultado['estado']}")
-
-        st.markdown("---")
-
-        st.header("🎉 Información de la Rifa – Apoyando nuestra causa")
-        st.write("📅 **Fecha del sorteo:** 15 de julio de 2026")
-        st.write("📍 **Lugar:** Transmisión en vivo por Teams")
-
-        st.subheader("🏆 Premios en juego:")
-        st.write("- 🍽️ Set de vajilla para 4 personas")
-        st.write("- ☕ Cafetera eléctrica")
-        st.write("- 🛏️ Juego de sábanas")
-        st.write("- 🎁 Dos premios sorpresa")
-        st.write("- 🎸 Clase demostrativa de guitarra")
-
-        st.subheader("📜 Reglas básicas:")
-        st.write("- Cada boleto es único y válido solo con su comprobante PDF.")
-        st.write("- El sorteo será público y transparente.")
-        st.write("- Los premios no son canjeables por dinero.")
-        st.write("- El comprador debe conservar su boleto(pdf) hasta el día del sorteo.")
-
-        st.subheader("📞 Contacto:")
-        st.write("WhatsApp del encargado: +593 962 308 005")
-
+        st.success("✅ Boleto válido para la rifa")
     else:
         st.error("❌ Boleto no encontrado")
 
-    # 👇 cerrar conexión aquí
     cursor.close()
     conexion.close()
 else:
-    st.info("Escanee el QR de su boleto para ver validación e información de la rifa.")
+    st.info("Escanee el QR de su boleto para más información de la rifa.")
