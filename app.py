@@ -58,7 +58,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
     qr_img = qrcode.make(url_qr)
     qr_path = "qr_compra.png"
     qr_img.save(qr_path)
-    pdf.image(qr_path, x=150, y=20, w=40, h=40)
+    pdf.image(qr_path, x=160, y=20, w=25, h=25)
 
     # Título centrado
     pdf.set_font("Helvetica", 'B', 18)
@@ -278,7 +278,7 @@ if transaccion_id:
         # Campos comprador y teléfono
         input_comprador = st.text_input("Nombre del comprador", value=st.session_state.comprador)
         if input_comprador:
-            st.session_state.comprador = input_comprador.capitalize()
+            st.session_state.comprador = input_comprador.title()
 
         input_telefono = st.text_input("Número de teléfono", value=st.session_state.telefono)
         if input_telefono:
