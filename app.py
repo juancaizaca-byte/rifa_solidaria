@@ -385,7 +385,7 @@ if isinstance(info_param, list):   # si viene como lista, tomar el primer valor
     info_param = info_param[0]
 
 if info_param == "rifa":
-    # 👇 Bloque con fondo celeste muy claro
+    # 👇 Bloque con fondo celeste muy claro y HTML bien interpretado
     st.markdown(
         """
         <div style='background-color:#E6F7FF; padding:15px; border-radius:10px;'>
@@ -394,7 +394,7 @@ if info_param == "rifa":
             <p>📍 <b>Lugar:</b> Transmisión en vivo por Teams</p>
 
             <h3>🏆 Premios en juego:</h3>
-            <ul>
+            <ul style='margin-left:20px;'>
                 <li>🍽️ Set de vajilla para 4 personas</li>
                 <li>☕ Cafetera eléctrica</li>
                 <li>🛏️ Juego de sábanas</li>
@@ -403,7 +403,7 @@ if info_param == "rifa":
             </ul>
 
             <h3>📜 Reglas básicas:</h3>
-            <ul>
+            <ul style='margin-left:20px;'>
                 <li>Cada boleto es único y válido solo con su comprobante PDF.</li>
                 <li>El sorteo será público y transparente.</li>
                 <li>Los premios no son canjeables por dinero.</li>
@@ -416,6 +416,12 @@ if info_param == "rifa":
         """,
         unsafe_allow_html=True
     )
+
+    # 👇 Logo oficial como sello digital
+    try:
+        st.image("logo3.png", width=200)
+    except:
+        st.info("Logo oficial no disponible")
 
     # 👇 Logo oficial como sello digital
     try:
