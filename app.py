@@ -309,7 +309,7 @@ if transaccion_id:
                     conexion.close()
 
 # --- ####### Formulario del vendedor ####### ---
-elif not boleto_id:
+elif not boleto_id and not info_param and not transaccion_id:
     import datetime
     import random
     import string
@@ -422,12 +422,6 @@ if info_param == "rifa":
         st.image("logo3.png", width=200)
     except:
         st.info("Logo oficial no disponible")
-
-    # 👇 Logo oficial como sello digital
-    try:
-        st.image("logo3.png", width=200)
-    except:
-        st.info("Logo oficial no disponible")  # Mensaje si el logo no está en la carpeta
 
 elif boleto_id:
     # 👇 Validación interna de boletos (sin mostrar datos sensibles)
