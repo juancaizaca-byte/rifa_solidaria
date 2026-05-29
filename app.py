@@ -1,5 +1,7 @@
 # --- IMPORTS Y FUNCIONES ---
 import streamlit as st
+import os
+from dotenv import load_dotenv
 import mysql.connector
 from datetime import datetime
 import random
@@ -20,16 +22,20 @@ if "telefono" not in st.session_state:
     st.session_state.telefono = ""
 
 
-# Función conectar
+# Cargar variables del archivo .env
+load_dotenv()
+
 def conectar():
+    host = os.getenv("DB_HOST")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASS")
+    database = os.getenv("DB_NAME")
+
     return mysql.connector.connect(
-        host="zephyr.proxy.rlwy.net",
-        port=54106,
-        user="root",
-        password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",
-        database="railway",
-        autocommit=True,
-        connection_timeout=60
+        host=host,
+        user=user,
+        password=password,
+        database=database
     )
 
 # Función generar PDF
