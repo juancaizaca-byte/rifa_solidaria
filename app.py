@@ -286,7 +286,7 @@ if transaccion_id:
                 try:
                     conexion = conectar()
                     cursor = conexion.cursor()
-                    fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    fecha_actual = datetime.now().strftime("%Y-%m-%d")
 
                     # Actualizar boletos vendidos
                     for numero_boleto in st.session_state.seleccionados:
@@ -399,7 +399,7 @@ if boleto_id:
         st.markdown("---")
 
         st.header("🎉 Información de la Rifa – Apoyando nuestra causa")
-        st.write("📅 **Fecha del sorteo:** 30 de junio de 2026")
+        st.write("📅 **Fecha del sorteo:** 15 de julio de 2026")
         st.write("📍 **Lugar:** Transmisión en vivo por Teams")
 
         st.subheader("🏆 Premios en juego:")
@@ -413,7 +413,7 @@ if boleto_id:
         st.write("- Cada boleto es único y válido solo con su comprobante PDF.")
         st.write("- El sorteo será público y transparente.")
         st.write("- Los premios no son canjeables por dinero.")
-        st.write("- El comprador debe conservar su boleto hasta el día del sorteo.")
+        st.write("- El comprador debe conservar su boleto(pdf) hasta el día del sorteo.")
 
         st.subheader("📞 Contacto:")
         st.write("WhatsApp del encargado: +593 962 308 005")
