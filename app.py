@@ -43,11 +43,12 @@ def conectar():
     st.write("DEBUG - Port:", port)
 
     return mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+    host=host,
+    port=int(port),   # 👈 aquí añadimos el puerto
+    user=user,
+    password=password,
+    database=database
+)
 
 # Función generar PDF
 def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
