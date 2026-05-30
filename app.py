@@ -26,11 +26,15 @@ if "telefono" not in st.session_state:
 load_dotenv()
 
 def conectar():
-    host = os.getenv("DB_HOST")
-    user = os.getenv("DB_USER")
-    password = os.getenv("DB_PASS")
-    database = os.getenv("DB_NAME")
-    port = os.getenv("DB_PORT") or "54106" 
+    import streamlit as st
+    import os
+
+    # 👇 primero intenta leer de secrets
+    host = st.secrets.get("DB_HOST", os.getenv("DB_HOST"))
+    user = st.secrets.get("DB_USER", os.getenv("DB_USER"))
+    password = st.secrets.get("DB_PASS", os.getenv("DB_PASS"))
+    database = st.secrets.get("DB_NAME", os.getenv("DB_NAME"))
+    port = st.secrets.get("DB_PORT", os.getenv("DB_PORT") or "54106")
 
     return mysql.connector.connect(
         host=host,
