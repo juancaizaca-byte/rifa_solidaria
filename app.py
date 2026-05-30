@@ -196,13 +196,17 @@ if transaccion_id:
     cursor = conexion.cursor(dictionary=True)
 
 # Traer datos de la transacción
-    cursor.execute("SELECT cantidad_reservada FROM transacciones WHERE id_transaccion = %s", (transaccion_id,))
+    cursor.execute("SELECT cantidad_reservada, estado FROM transacciones WHERE id_transaccion = %s", (transaccion_id,))
     transaccion = cursor.fetchone()
     cursor.close()
     conexion.close()
 
+
+
     if not transaccion:
         st.error("❌ Transacción no encontrada")
+    elif transaccion["estado"] == "Completada":
+        st.info("✅ Esta transacción ya fue completada. No puedes seleccionar más boletos con este enlace.")
     else:
         cantidad_reservada = transaccion["cantidad_reservada"]
 
@@ -314,7 +318,9 @@ if transaccion_id:
                             WHERE numero = %s AND estado = 'Disponible'
                         """, (st.session_state.comprador, st.session_state.telefono, fecha_actual, numero_boleto))
 
+                    cursor.execute("UPDATE transacciones SET estado = 'Completada' WHERE id_transaccion = %s", (transaccion_id,))
                     conexion.commit()
+                    
                     st.success(f"✅ Compra registrada: {len(st.session_state.seleccionados)} boletos vendidos a {st.session_state.comprador} ({st.session_state.telefono})")
 
                     # Generar PDF
