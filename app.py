@@ -36,6 +36,12 @@ def conectar():
     database = st.secrets.get("DB_NAME", os.getenv("DB_NAME"))
     port = st.secrets.get("DB_PORT", os.getenv("DB_PORT") or "54106")
 
+  # 👇 imprime en logs lo que está leyendo
+    st.write("DEBUG - Host:", host)
+    st.write("DEBUG - User:", user)
+    st.write("DEBUG - Database:", database)
+    st.write("DEBUG - Port:", port)
+
     return mysql.connector.connect(
         host=host,
         user=user,
