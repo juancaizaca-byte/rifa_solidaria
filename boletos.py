@@ -1,45 +1,56 @@
 import mysql.connector   # Librería para conectar Python con MySQL
+import os
+from dotenv import load_dotenv
 
-# 🔗 Conexión a Railway (usa el host y puerto público)
-conexion = mysql.connector.connect(
-    host="zephyr.proxy.rlwy.net",       # 👈 host público de Railway
-    port=54106,                         # 👈 puerto público
-    user="root",                        # 👈 usuario
-    password="tpsbWYBThxeMPrIyfIZdoQCZkLfnxwgZ",  # 👈 tu clave
-    database="railway"                  # 👈 nombre de la base
-)
+# 📌 Cargar variables del archivo .env
+load_dotenv()
 
-cursor = conexion.cursor()
+def conectar():
+    host = os.getenv("DB_HOST")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASS")
+    database = os.getenv("DB_NAME")
 
-# 🚀 Inserción automática de boletos del 0001 al 1000
-for i in range(1, 1001):
-    numero = str(i).zfill(4)  # Convierte 1 en '0001', 25 en '0025', etc.
-    cursor.execute(
-        """
-        INSERT INTO boletos (numero, comprador, telefono, estado, fecha_compra, id_transaccion)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-        (numero, "", "", "Disponible", None, None)  
-        # comprador vacío, teléfono vacío, estado inicial "Disponible",
-        # fecha_compra NULL, id_transaccion NULL
+    return mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
     )
 
-# 💾 Guardar cambios en la base
-conexion.commit()
-print("✅👌 Se insertaron los boletos del 0001 al 1000 en Railway")
+try:
+    # 🔗 Conexión
+    conexion = conectar()
+    cursor = conexion.cursor()
 
-# 📊 Verificación: contar boletos
-cursor.execute("SELECT COUNT(*) FROM boletos")
-resultado = cursor.fetchone()
-print(f"📊 Total de boletos en la base: {resultado[0]}")
+    # 🧹 Vaciar la tabla antes de repoblar
+    cursor.execute("TRUNCATE TABLE boletos")
 
-# 📋 Verificación: mostrar primeros 10 boletos
-cursor.execute("SELECT numero, estado FROM boletos LIMIT 10")
-filas = cursor.fetchall()
-print("🔎 Ejemplo de boletos cargados:")
-for fila in filas:
-    print(fila)
+    # 🚀 Insertar boletos del 0001 al 1000
+    for i in range(1, 1001):
+        numero = str(i).zfill(4)
+        cursor.execute(
+            """
+            INSERT INTO boletos (numero, comprador, telefono, estado, fecha_compra, id_transaccion)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """,
+            (numero, "", "", "Disponible", None, None)
+        )
 
-# 🔒 Cerrar cursor y conexión
-cursor.close()
-conexion.close()
+    # 💾 Guardar cambios
+    conexion.commit()
+    print("✅ Tabla reiniciada y repoblada con 1000 boletos disponibles")
+
+    # 📊 Verificación
+    cursor.execute("SELECT COUNT(*) FROM boletos")
+    print(f"📊 Total de boletos: {cursor.fetchone()[0]}")
+
+    cursor.execute("SELECT numero, estado FROM boletos LIMIT 10")
+    print("🔎 Ejemplo de boletos cargados:", cursor.fetchall())
+
+    # 🔒 Cerrar cursor y conexión
+    cursor.close()
+    conexion.close()
+
+except mysql.connector.Error as err:
+    print(f"❌ Error: {err}")
