@@ -1,2 +1,4 @@
 # Ignorar archivo de variables de entorno (no subir claves)
 .env
+# Ignorar notebook de reportes (solo uso personal)
+reportes_boletos.ipynb

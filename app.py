@@ -217,6 +217,8 @@ if transaccion_id:
         cantidad_reservada = transaccion["cantidad_reservada"]
 
         st.markdown("<h1 style='color:#1E3A8A; text-align:center;'>🎟️ Selección de boletos </h1>", unsafe_allow_html=True)
+        # 👇 Aquí insertamos la nota en recuadro azul
+        st.info("📌 Nota: Para una mejor experiencia en el celular, active la opción *Vista de escritorio* en su navegador.")
         st.write(f"Debes elegir exactamente {cantidad_reservada} boletos disponibles.")
 
         # Traer boletos disponibles
