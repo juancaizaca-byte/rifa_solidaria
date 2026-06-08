@@ -11,6 +11,9 @@ import io
 import qrcode
 from fpdf.enums import XPos, YPos
 
+# 👇 Ajuste: cargar .env desde la raíz del proyecto
+load_dotenv(dotenv_path="../.env")
+
 # --- Inicializar variables en session_state ---
 if "seleccionados" not in st.session_state:
     st.session_state.seleccionados = []
@@ -61,14 +64,14 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
 
     # Logo superior
     try:
-        pdf.image("logo3.png", x=10, y=8, w=30)
+        pdf.image("../logo/logo3.png", x=10, y=8, w=30)
     except:
         pass
 
     # Generar QR y ponerlo arriba a la derecha
     url_qr = "https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?info=rifa"
     qr_img = qrcode.make(url_qr)
-    qr_path = "qr_compra.png"
+    qr_path = "../temp/qr_compra.png"
     qr_img.save(qr_path)
     pdf.image(qr_path, x=160, y=20, w=25, h=25)
 
@@ -148,7 +151,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
     pdf.set_font("Helvetica", 'I', 9)
     pdf.set_text_color(0, 0, 0)
     try:
-        pdf.image("logo1.png", x=80, y=pdf.get_y(), w=50)
+        pdf.image("../logo/logo1.png", x=80, y=pdf.get_y(), w=50)
     except:
         pass
     pdf.ln(40)

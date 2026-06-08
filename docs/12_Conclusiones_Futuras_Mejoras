@@ -1,0 +1,41 @@
+# 📘 12: Conclusiones y Futuras Mejoras
+
+## Conclusiones
+- El **Sistema de Rifa** cumple con los objetivos planteados:  
+  - Permite la gestión de boletos de manera ordenada y segura.  
+  - Facilita la transparencia en las transacciones.  
+  - Ofrece una interfaz sencilla para el usuario final.  
+- La arquitectura basada en **Python + MySQL + Streamlit** demostró ser adecuada para un proyecto de bajo costo y fácil despliegue.  
+- El sistema es escalable y puede adaptarse a nuevas necesidades sin grandes cambios estructurales.  
+
+---
+
+## Futuras Mejoras
+1. **Seguridad y autenticación**  
+   - Implementar login con usuarios y roles (administrador, vendedor, comprador).  
+   - Añadir cifrado de datos sensibles (teléfonos, correos).  
+
+2. **Interfaz de usuario**  
+   - Mejorar diseño visual con CSS/Bootstrap.  
+   - Adaptar completamente a dispositivos móviles.  
+
+3. **Funcionalidades adicionales**  
+   - Generación automática de QR para cada boleto.  
+   - Envío de confirmaciones por correo electrónico o WhatsApp.  
+   - Panel de estadísticas con ventas, boletos disponibles y transacciones.  
+
+4. **Escalabilidad y despliegue**  
+   - Migrar base de datos a un servicio más robusto (ej. Supabase, AWS RDS).  
+   - Automatizar backups y restauración de datos.  
+   - Integrar CI/CD para despliegues más rápidos y seguros.  
+
+5. **Documentación y soporte**  
+   - Completar manuales técnicos y de usuario.  
+   - Crear tutoriales en video para capacitación rápida.  
+   - Mantener un registro de cambios (changelog) en el repositorio.  
+
+---
+
+## Nota final
+Este documento resume el estado actual del proyecto y las oportunidades de mejora para convertirlo en una solución más **profesional, segura y escalable**.  
+Las futuras mejoras pueden implementarse de manera incremental según las necesidades y recursos disponibles.

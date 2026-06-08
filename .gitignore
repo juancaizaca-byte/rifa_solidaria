@@ -1,4 +1,19 @@
 # Ignorar archivo de variables de entorno (no subir claves)
 .env
-# Ignorar notebook de reportes (solo uso personal)
+
+# Ignorar notebooks de prueba (solo uso personal)
+*.ipynb
 reportes_boletos.ipynb
+
+# Ignorar carpeta de temporales (QR, PDFs generados)
+temp/
+
+# Ignorar archivos compilados de Python
+__pycache__/
+*.pyc
+
+# Ignorar logs
+*.log
+
+# Ignorar script auxiliar para poblar boletos (no parte del sistema en producción)
+src/boletos.py

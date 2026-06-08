@@ -1,3 +1,21 @@
+
+# 📑 Índice General del Proyecto - Sistema de Rifa
+
+1. [Portada y Resumen Ejecutivo](docs/01_Portada_Resumen_Ejecutivo.md)
+2. [Modelo Entidad-Relación (ER)](docs/02_Modelo_ER.md)
+3. [Diccionario de Datos](docs/03_Diccionario_Datos.md)
+4. [Casos de Uso UML](docs/04_Casos_Uso.md)
+5. [Requerimientos Funcionales](docs/05_Requerimientos_Funcionales.md)
+6. [Historias de Usuario](docs/06_Historias_Usuario.md)
+7. [Mockups y Prototipos](docs/07_Mockups.md)
+8. [Flujo de Procesos](docs/08_Flujo_Procesos.md)
+9. [Plan de Pruebas](docs/09_Plan_Pruebas.md)
+10. [Manual de Usuario](docs/10_Manual_Usuario.md)
+11. [Manual Técnico / Instalación](docs/11_Manual_Tecnico.md)
+12. [Conclusiones y Futuras Mejoras](docs/12_Conclusiones_Futuras_Mejoras.md)
+
+
+
 # 🎉 Tu Aporte Vale Oro - Rifa
 
 Aplicación web para gestionar una rifa  con boletos digitales, comprobantes PDF y validación por QR.  
