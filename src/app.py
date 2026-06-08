@@ -35,17 +35,23 @@ def conectar():
     # 👇 primero intenta leer de secrets
     host = st.secrets.get("DB_HOST", os.getenv("DB_HOST"))
     user = st.secrets.get("DB_USER", os.getenv("DB_USER"))
-    password = st.secrets.get("DB_PASS", os.getenv("DB_PASS"))
+    # ✅ Ajuste: aceptar tanto DB_PASSWORD como DB_PASS
+    password = (
+        st.secrets.get("DB_PASSWORD")
+        or st.secrets.get("DB_PASS")
+        or os.getenv("DB_PASSWORD")
+        or os.getenv("DB_PASS")
+    )
     database = st.secrets.get("DB_NAME", os.getenv("DB_NAME"))
     port = st.secrets.get("DB_PORT", os.getenv("DB_PORT") or "54106")
 
     return mysql.connector.connect(
-    host=host,
-    port=int(port),   # 👈 aquí añadimos el puerto
-    user=user,
-    password=password,
-    database=database
-)
+        host=host,
+        port=int(port),   # 👈 aquí añadimos el puerto
+        user=user,
+        password=password,
+        database=database
+    )
 
 # Función generar PDF
 def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
