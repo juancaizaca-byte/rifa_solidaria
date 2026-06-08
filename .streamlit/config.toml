@@ -1,0 +1,9 @@
+[server]
+headless = true
+port = 8501
+enableCORS = false
+fileWatcherType = "none"
+
+[general]
+# 👇 Indica la ruta del archivo principal
+main_script = "src/app.py"
