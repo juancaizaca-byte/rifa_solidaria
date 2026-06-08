@@ -69,7 +69,7 @@ def generar_pdf_compra(lista_boletos, comprador, telefono, fecha_compra):
         pass
 
     # Generar QR y ponerlo arriba a la derecha
-    url_qr = "https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?info=rifa"
+    url_qr = "https://rifasolidaria-app.streamlit.app//?info=rifa"
     qr_img = qrcode.make(url_qr)
     qr_path = "../temp/qr_compra.png"
     qr_img.save(qr_path)
@@ -372,7 +372,7 @@ elif not boleto_id and not info_param and not transaccion_id:
 
     if st.button("Generar URL"):
         id_transaccion = generar_id_transaccion()
-        url_unico = f"https://rifasolidaria-rdqf8fs99yzxm7kwkbqp3k.streamlit.app/?transaccion={id_transaccion}"
+        url_unico = f"https://rifasolidaria-app.streamlit.app//?transaccion={id_transaccion}"
 
         try:
             conn = mysql.connector.connect(**db_config)
